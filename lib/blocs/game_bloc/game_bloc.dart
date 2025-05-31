@@ -51,7 +51,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         }
       }
     });
-    on<GameFinished>((event, emit) {
+    on<GameOverEvent>((event, emit) {
       if (state is GameInProgress) {
         final current = state as GameInProgress;
         emit(GameOver(current.score));

@@ -2,10 +2,15 @@ part of 'timer_bloc.dart';
 
 sealed class TimerEvent {}
 
-class TimerStarted extends TimerEvent {}
+class TimerStart extends TimerEvent {
+  final int duration;
+  TimerStart(this.duration);
+}
 
 class Tick extends TimerEvent {
-  final int timeRemaing;
+  final int timeRemaining;
 
-  Tick(this.timeRemaing);
+  Tick(this.timeRemaining);
 }
+class PauseTimer extends TimerEvent {}
+class ResumeTimer extends TimerEvent {}

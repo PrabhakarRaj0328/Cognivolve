@@ -61,3 +61,23 @@ class FlankersTaskServices {
     }
   }
 }
+class GamePhaseManager {
+  static const int totalDuration = 45;
+  static const int phaseDuration = 15;
+  
+  static List<Map<String, String>> getRandomThreePairs(List<Map<String, String>> allPairs) {
+    List<Map<String, String>> shuffled = List.from(allPairs);
+    shuffled.shuffle();
+    return shuffled.take(3).toList();
+  }
+  
+  static int getCurrentPhase(int remainingTime) {
+    int elapsedTime = totalDuration - remainingTime;
+    return (elapsedTime ~/ phaseDuration).clamp(0, 2);
+  }
+  
+  static Map<String, String> getImagePairForPhase(int phase, List<Map<String, String>> selectedPairs) {
+    return selectedPairs[phase];
+  }
+}
+

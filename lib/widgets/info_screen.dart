@@ -1,8 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:math';
 import 'package:cognivolve/screens/games/flankers_task/game_screen.dart';
 import 'package:cognivolve/screens/games/flankers_task/patterns.dart';
+import 'package:cognivolve/screens/games/flankers_task/services.dart';
 import 'package:cognivolve/utils/global_variables.dart';
 import 'package:flutter/material.dart';
 
@@ -40,13 +40,17 @@ class _InfoScreenState extends State<InfoScreen> {
               decoration: BoxDecoration(color: Color(0xFFe9ecef)),
               child: GestureDetector(
                 onTap: () async{
-                  final int num =  Random().nextInt(4);
-                  await precacheImage(AssetImage('assets/images/${images[num]['bgUrl']}'), context);
-                  if (!mounted) return;
-                  await precacheImage(AssetImage('assets/images/${images[num]['imgUrl']}'), context);
-                  if (!mounted) return;
+                  final List<Map<String,String>> selectedImages = GamePhaseManager.getRandomThreePairs(images);
+
+                  for(int i=0;i<selectedImages.length;i++){
+                    print(selectedImages);
+                    await precacheImage(AssetImage('assets/images/${selectedImages[i]['bgUrl']}'), context);
+                    if (!mounted) return;
+                    await precacheImage(AssetImage('assets/images/${selectedImages[i]['imgUrl']}'), context);
+                    if (!mounted) return;
+                  }
                   Navigator.pushNamed(context, FlankersTask.routeName,
-                  arguments:images[num],
+                  arguments:selectedImages,
                   );
                 },
                 child: Align(
