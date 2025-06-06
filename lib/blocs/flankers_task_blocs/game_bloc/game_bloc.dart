@@ -38,7 +38,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
             GameInProgress(
               newPattern.pattern,
               newPattern.direction,
-              current.score + 100            ),
+              current.score + 100),
           );
         } else {
           emit(

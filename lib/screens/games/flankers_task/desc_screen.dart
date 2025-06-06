@@ -1,3 +1,4 @@
+import 'package:cognivolve/screens/games/flankers_task/game_screen.dart';
 import 'package:cognivolve/widgets/info_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +13,6 @@ class FlankersTaskDesc extends StatefulWidget {
 class _FlankersTaskDescState extends State<FlankersTaskDesc> {
   @override
   Widget build(BuildContext context) {
-    return InfoScreen();
+    return InfoScreen(routeName: FlankersTask.routeName,);
   }
 }

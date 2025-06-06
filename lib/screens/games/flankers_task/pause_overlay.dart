@@ -1,8 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:cognivolve/screens/games/flankers_task/game_screen.dart';
-import 'package:cognivolve/screens/games/flankers_task/patterns.dart';
-import 'package:cognivolve/screens/games/flankers_task/services.dart';
 import 'package:cognivolve/utils/global_variables.dart';
 import 'package:fluentui_icons/fluentui_icons.dart';
 import 'package:flutter/material.dart';
@@ -117,35 +113,9 @@ class _PauseOverlayState extends State<PauseOverlay>
                             ),
                             child: IconButton(
                               onPressed: () async {
-                                final List<Map<String, String>> selectedImages =
-                                    GamePhaseManager.getRandomThreePairs(
-                                      images,
-                                    );
-
-                                for (
-                                  int i = 0;
-                                  i < selectedImages.length;
-                                  i++
-                                ) {
-                                  await precacheImage(
-                                    AssetImage(
-                                      'assets/images/${selectedImages[i]['bgUrl']}',
-                                    ),
-                                    context,
-                                  );
-                                  if (!mounted) return;
-                                  await precacheImage(
-                                    AssetImage(
-                                      'assets/images/${selectedImages[i]['imgUrl']}',
-                                    ),
-                                    context,
-                                  );
-                                  if (!mounted) return;
-                                }
                                 Navigator.pushReplacementNamed(
                                   context,
                                   FlankersTask.routeName,
-                                  arguments: selectedImages,
                                 );
                               },
                               icon: Icon(

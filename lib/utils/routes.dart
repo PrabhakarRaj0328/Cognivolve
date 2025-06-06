@@ -18,9 +18,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         builder: (_) => const FlankersTaskDesc(),
       );
       case FlankersTask.routeName:
-       final args = settings.arguments as List<Map<String, String>>;
             return MaterialPageRoute(
-        builder: (_) =>  FlankersTask(images: args),
+        builder: (_) =>  FlankersTask(),
       );
     default:
       return MaterialPageRoute(
