@@ -10,9 +10,6 @@ final class GameInProgress extends GameState {
 
   GameInProgress(this.currentPattern, this.targetDirection, this.score);
 }
-
-final class GamePaused extends GameState {}
-
 final class GameOver extends GameState {
   final int finalScore;
   GameOver(this.finalScore);

@@ -29,7 +29,7 @@ class GameCard extends StatelessWidget {
             ),
             Gap(size.height * 0.01),
             Text(
-              'Flankers Task',
+              gameName,
               style: GlobalVariables.headLineStyle1.copyWith(fontSize: 18),
             ),
           ],

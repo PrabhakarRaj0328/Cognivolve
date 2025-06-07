@@ -1,4 +1,3 @@
-import 'package:cognivolve/screens/games/flankers_task/game_screen.dart';
 import 'package:cognivolve/utils/global_variables.dart';
 import 'package:fluentui_icons/fluentui_icons.dart';
 import 'package:flutter/material.dart';
@@ -7,11 +6,12 @@ import 'package:gap/gap.dart';
 class PauseOverlay extends StatefulWidget {
   final bool isVisible;
   final VoidCallback onResume;
+  final String routeName;
 
   const PauseOverlay({
     super.key,
     required this.isVisible,
-    required this.onResume,
+    required this.onResume, required this.routeName,
   });
 
   @override
@@ -115,7 +115,7 @@ class _PauseOverlayState extends State<PauseOverlay>
                               onPressed: () async {
                                 Navigator.pushReplacementNamed(
                                   context,
-                                  FlankersTask.routeName,
+                                  widget.routeName,
                                 );
                               },
                               icon: Icon(

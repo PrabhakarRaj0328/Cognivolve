@@ -5,10 +5,12 @@ import 'package:cognivolve/blocs/flankers_task_blocs/game_bloc/game_bloc.dart';
 import 'package:cognivolve/blocs/flankers_task_blocs/phase_bloc/phase_bloc.dart';
 import 'package:cognivolve/blocs/flankers_task_blocs/timer_bloc.dart/timer_bloc.dart';
 import 'package:cognivolve/screens/games/flankers_task/patterns.dart';
-import 'package:cognivolve/screens/games/flankers_task/pause_overlay.dart';
+import 'package:cognivolve/widgets/pause_overlay.dart';
 import 'package:cognivolve/screens/games/flankers_task/services.dart';
 import 'package:cognivolve/utils/global_variables.dart';
 import 'package:cognivolve/utils/layout.dart';
+import 'package:cognivolve/widgets/feedback.dart';
+import 'package:cognivolve/widgets/game_over.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -81,34 +83,7 @@ class _FlankersTaskState extends State<FlankersTask>
     super.dispose();
   }
 
-  void showSwipeFeedback(BuildContext context, bool isCorrect) {
-    final overlay = Overlay.of(context);
-    final overlayEntry = OverlayEntry(
-      builder:
-          (context) => Center(
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isCorrect ? Color(0xFF38b000) : Color(0Xffef233c),
-              ),
-              child: AnimatedOpacity(
-                opacity: 1.0,
-                duration: Duration(milliseconds: 300),
-                child: Icon(
-                  isCorrect ? Icons.check : Icons.cancel,
-                  color: Colors.white,
-                  size: 80,
-                ),
-              ),
-            ),
-          ),
-    );
 
-    overlay.insert(overlayEntry);
-    Future.delayed(Duration(milliseconds: 300), () {
-      overlayEntry.remove();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -440,84 +415,7 @@ class _FlankersTaskState extends State<FlankersTask>
                                   ),
                                 );
                               } else if (state is GameOver) {
-                                return Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(35.0),
-                                    child: Container(
-                                      height: 200,
-
-                                      padding: EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        border: Border.all(
-                                          color: GlobalVariables.iconColor,
-                                          width: 10,
-                                        ),
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            'Nice going! You earned \n${state.finalScore} points',
-                                            style: GlobalVariables
-                                                .headLineStyle1
-                                                .copyWith(fontSize: 22),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          Gap(10),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Container(
-                                                decoration: BoxDecoration(
-                                                  color:
-                                                      GlobalVariables.iconColor,
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: IconButton(
-                                                  onPressed: () async {
-                                                    Navigator.pushReplacementNamed(
-                                                      context,
-                                                      FlankersTask.routeName,
-                                                    );
-                                                  },
-                                                  icon: Icon(
-                                                    Icons.restart_alt,
-                                                    size: 35,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ),
-                                              Gap(20),
-                                              Container(
-                                                decoration: BoxDecoration(
-                                                  color:
-                                                      GlobalVariables.iconColor,
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: IconButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                  },
-                                                  icon: Icon(
-                                                    Icons.close,
-                                                    size: 35,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
+                                return showGameOver(state.finalScore, context,FlankersTask.routeName);
                               }
                               return SizedBox.shrink();
                             },
@@ -532,6 +430,7 @@ class _FlankersTaskState extends State<FlankersTask>
               BlocBuilder<TimerBloc, TimerState>(
                 builder: (context, state) {
                   return PauseOverlay(
+                    routeName: FlankersTask.routeName,
                     isVisible: state is TimerPaused,
                     onResume: () {
                       context.read<TimerBloc>().add(ResumeTimer());

@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 
 class GlobalVariables {
   static Color primaryColor = const Color(0xFFfb5607);
-  static Color bgColor = const Color(0xFFfdf0d5);
+  static Color bgColor = const Color(0xffedede9);
   static Color secondaryColor = const Color(0xFF0077b6);
   static Color iconColor = const Color(0xFF219ebc);
   static Color gameColor = const Color(0xFF90e0ef);
   static Color textColor = const Color(0xFF023047);
+  static Color brownColor = const Color(0xff5e3023);
 
   static TextStyle textStyle = TextStyle(
     fontSize: 16,

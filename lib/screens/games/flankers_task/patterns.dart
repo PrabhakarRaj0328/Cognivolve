@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 double containerSize = 65.0;
 
 List<Map<String, String>> images = [
-  {'bgUrl': 'space.png', 'imgUrl': 'spaceship.png'},
-  {'bgUrl': 'road.png', 'imgUrl': 'car.png'},
-  {'bgUrl': 'underwater.png', 'imgUrl': 'fish.png'},
-  {'bgUrl': 'sky.png', 'imgUrl': 'plane.png'},
+  {'bgUrl': 'flankers_task_images/space.png', 'imgUrl': 'flankers_task_images/spaceship.png'},
+  {'bgUrl': 'flankers_task_images/road.png', 'imgUrl': 'flankers_task_images/car.png'},
+  {'bgUrl': 'flankers_task_images/underwater.png', 'imgUrl': 'flankers_task_images/fish.png'},
+  {'bgUrl': 'flankers_task_images/sky.png', 'imgUrl': 'flankers_task_images/plane.png'},
 ];
 
 Transform bird(double angle, String imgUrl) => Transform.rotate(

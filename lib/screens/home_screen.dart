@@ -1,4 +1,5 @@
 import 'package:cognivolve/screens/games/flankers_task/desc_screen.dart';
+import 'package:cognivolve/screens/games/stroops_task/desc_screen.dart';
 import 'package:cognivolve/utils/global_variables.dart';
 import 'package:cognivolve/utils/layout.dart';
 import 'package:cognivolve/widgets/game_card.dart';
@@ -31,12 +32,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text('Games', style: GlobalVariables.headLineStyle1),
                   Gap(size.height * 0.02),
                   SingleChildScrollView(
+                  
                     scrollDirection: Axis.horizontal,
+                    
                     child: Row(
                       children: [
                         GameCard(
                           routeName: FlankersTaskDesc.routeName,
                           gameName: 'Flanker\'s Task',
+                        ),
+                        Gap(15),
+                        GameCard(
+                          routeName: StroopDesc.routeName,
+                          gameName: 'Stroop\'s Task',
                         ),
                       ],
                     ),
