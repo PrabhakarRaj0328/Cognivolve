@@ -13,6 +13,6 @@ class StroopDesc extends StatefulWidget {
 class _StroopDescState extends State<StroopDesc> {
   @override
   Widget build(BuildContext context) {
-    return InfoScreen(routeName: StroopsTask.routeName,);
+    return InfoScreen(routeName: StroopsTask.routeName,message: "",);
   }
 }

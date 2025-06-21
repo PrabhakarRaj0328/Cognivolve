@@ -1,3 +1,4 @@
+import 'package:cognivolve/screens/games/corsi_span_task/corsi_desc.dart';
 import 'package:cognivolve/screens/games/flankers_task/desc_screen.dart';
 import 'package:cognivolve/screens/games/stroops_task/desc_screen.dart';
 import 'package:cognivolve/utils/global_variables.dart';
@@ -45,6 +46,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         GameCard(
                           routeName: StroopDesc.routeName,
                           gameName: 'Stroop\'s Task',
+                        ),
+                        Gap(15),
+                        GameCard(
+                          routeName: CorsiDesc.routeName,
+                          gameName: 'Corsi\'s Task',
                         ),
                       ],
                     ),

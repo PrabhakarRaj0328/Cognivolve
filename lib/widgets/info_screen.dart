@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 
 class InfoScreen extends StatefulWidget {
   final String routeName;
-  const InfoScreen({super.key,required this.routeName});
+  final String message;
+  const InfoScreen({super.key,required this.routeName, required this.message});
 
   @override
   State<InfoScreen> createState() => _InfoScreenState();
@@ -27,6 +28,10 @@ class _InfoScreenState extends State<InfoScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12,horizontal: 18),
+              child: Text(widget.message, style: TextStyle(fontSize: 14),),
+            ),
             Expanded(child: SizedBox()),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 4),

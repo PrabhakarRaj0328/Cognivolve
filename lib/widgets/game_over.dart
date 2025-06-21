@@ -5,10 +5,9 @@ import 'package:gap/gap.dart';
 Widget showGameOver(int text,BuildContext context,String routeName) {
   return Center(
     child: Padding(
-      padding: const EdgeInsets.all(35.0),
+      padding: const EdgeInsets.only(left: 35,right: 35,top: 35),
       child: Container(
         height: 200,
-
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: Colors.white,
