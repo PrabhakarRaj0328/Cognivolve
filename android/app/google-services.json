@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "423354581826",
+    "project_id": "cognivolve-7fe6c",
+    "storage_bucket": "cognivolve-7fe6c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:423354581826:android:1692f6e52c8797d4047edb",
+        "android_client_info": {
+          "package_name": "com.example.cognivolve"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "423354581826-rvhe0r0o8jup7otl0587an5s6d9dudoh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cognivolve",
+            "certificate_hash": "651151d3afd2c851638436e821218a7a869941c4"
+          }
+        },
+        {
+          "client_id": "423354581826-8ed48o793k6hmprnfaom01uffog1au20.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB35ANneMFVOmxFUHR25q0nkTTcKeCHSxo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "423354581826-8ed48o793k6hmprnfaom01uffog1au20.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

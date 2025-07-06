@@ -8,6 +8,7 @@ class GlobalVariables {
   static Color gameColor = const Color(0xFF90e0ef);
   static Color textColor = const Color(0xFF023047);
   static Color brownColor = const Color(0xff5e3023);
+  static Color mainColor = const Color(0Xff34a0a4);
 
   static TextStyle textStyle = TextStyle(
     fontSize: 16,
