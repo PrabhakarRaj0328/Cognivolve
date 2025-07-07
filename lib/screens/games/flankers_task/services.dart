@@ -2,11 +2,12 @@ import 'dart:math';
 import 'package:cognivolve/screens/games/flankers_task/patterns.dart';
 import 'package:flutter/material.dart';
 
-class PatternResult {
+class RandomPattern {
   final SizedBox pattern;
   final String direction;
+  final String patternName;
 
-  PatternResult({required this.pattern, required this.direction});
+  RandomPattern(this.patternName, {required this.pattern, required this.direction});
 }
 class FlankersTaskServices {
 
@@ -20,10 +21,10 @@ class FlankersTaskServices {
     return birdDirections;
   }
 
-  static PatternResult randomPattern(String imgUrl) {
+  static RandomPattern randomPattern(String imgUrl) {
     final List<double> angles = directionGenerator();
     final Random random = Random();
-    List<SizedBox> patternList1 = [
+    List<PatternResult> patternList1 = [
       Difficulty1.downArrow(angles[0],angles[1],imgUrl), 
       Difficulty1.upArrow(angles[0],angles[1],imgUrl),
       Difficulty1.leftArrow(angles[0],angles[1],imgUrl),
@@ -31,7 +32,7 @@ class FlankersTaskServices {
       Difficulty1.verPattern(angles[0],angles[1],imgUrl),
       Difficulty1.horPattern(angles[0],angles[1],imgUrl),
     ];
-    List<SizedBox> patternList2 = [
+    List<PatternResult> patternList2 = [
       Difficulty3.downArrow(angles[0],angles[1],imgUrl), 
       Difficulty3.upArrow(angles[0],angles[1],imgUrl),
       Difficulty3.leftArrow(angles[0],angles[1],imgUrl),
@@ -41,8 +42,8 @@ class FlankersTaskServices {
     ];
     final int randomDiff = random.nextInt(2);
     final int randomPatt = random.nextInt(patternList2.length);
-    final List<SizedBox> patternList = randomDiff==1? patternList2 : patternList1;
-    return PatternResult(pattern: patternList[randomPatt], direction: getDirectionFromAngle(angles[0]));
+    final List<PatternResult> patternList = randomDiff==1? patternList2 : patternList1;
+    return RandomPattern(pattern: patternList[randomPatt].widget, direction: getDirectionFromAngle(angles[0]), patternList[randomPatt].patternName);
   
   }
 

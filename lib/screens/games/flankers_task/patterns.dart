@@ -8,6 +8,15 @@ List<Map<String, String>> images = [
   {'bgUrl': 'flankers_task_images/underwater.png', 'imgUrl': 'flankers_task_images/fish.png'},
   {'bgUrl': 'flankers_task_images/sky.png', 'imgUrl': 'flankers_task_images/plane.png'},
 ];
+class PatternResult {
+  final SizedBox widget;
+  final String patternName;
+  
+  PatternResult({
+    required this.widget,
+    required this.patternName,
+  });
+}
 
 Transform bird(double angle, String imgUrl) => Transform.rotate(
   angle: angle,
@@ -23,10 +32,39 @@ Transform bird(double angle, String imgUrl) => Transform.rotate(
     ),
   ),
 );
+class TrialData {
+  final int trialNumber;
+  final String targetDirection;
+  final String userSwipe;
+  final bool isCorrect;
+  final int reactionTime;
+  final String imagePair;
+  final String pattern;
+
+  TrialData({
+    required this.trialNumber,
+    required this.targetDirection,
+    required this.userSwipe,
+    required this.isCorrect,
+    required this.reactionTime,
+    required this.imagePair,
+    required this.pattern, 
+  });
+
+  Map<String, dynamic> toJson() => {
+    'trialNumber': trialNumber,
+    'targetDirection': targetDirection,
+    'userSwipe': userSwipe,
+    'isCorrect': isCorrect,
+    'reactionTime': reactionTime,
+    'imagePair': imagePair,
+    'pattern': pattern,
+  };
+}
 
 class Difficulty1 {
-  static SizedBox horPattern(double targetAngle, otherAngle, String imgUrl) {
-    return SizedBox(
+  static PatternResult horPattern(double targetAngle, otherAngle, String imgUrl) {
+    final widget = SizedBox(
       width: containerSize * 5,
       height: containerSize,
       child: Row(
@@ -37,12 +75,13 @@ class Difficulty1 {
           bird(otherAngle, imgUrl),
           bird(otherAngle, imgUrl),
         ],
-      ),
-    );
+      ), 
+  );
+   return PatternResult(widget: widget, patternName: 'smallHorizontal');
   }
 
-  static SizedBox verPattern(double targetAngle, otherAngle, String imgUrl) {
-    return SizedBox(
+  static PatternResult verPattern(double targetAngle, otherAngle, String imgUrl) {
+    final widget =  SizedBox(
       width: containerSize,
       height: containerSize * 5,
       
@@ -56,10 +95,11 @@ class Difficulty1 {
         ],
       ),
     );
+    return PatternResult(widget: widget, patternName: 'smallVerical');
   }
 
-  static SizedBox upArrow(double targetAngle, otherAngle, String imgUrl) {
-    return SizedBox(
+  static PatternResult upArrow(double targetAngle, otherAngle, String imgUrl) {
+    final widget = SizedBox(
       width: containerSize * 5,
       height: containerSize * 3,
       child: Column(
@@ -70,10 +110,11 @@ class Difficulty1 {
         ],
       ),
     );
+    return PatternResult(widget: widget, patternName: 'smallUp');
   }
 
-  static SizedBox downArrow(double targetAngle, otherAngle, String imgUrl) {
-    return SizedBox(
+  static PatternResult downArrow(double targetAngle, otherAngle, String imgUrl) {
+    final widget = SizedBox(
       width: containerSize * 5,
       height: containerSize * 3,
       child: Column(
@@ -84,10 +125,11 @@ class Difficulty1 {
         ],
       ),
       );
+      return PatternResult(widget: widget, patternName: 'smallDown');
   }
 
-  static SizedBox rightArrow(double targetAngle, otherAngle, String imgUrl) {
-    return SizedBox(
+  static PatternResult rightArrow(double targetAngle, otherAngle, String imgUrl) {
+    final widget = SizedBox(
       width: containerSize * 3,
       height: containerSize * 5,
       child: Row(
@@ -98,10 +140,11 @@ class Difficulty1 {
         ],
       ),
       );
+      return PatternResult(widget: widget, patternName: 'smallRight');
   }
 
-  static SizedBox leftArrow(double targetAngle, otherAngle, String imgUrl) {
-    return SizedBox(
+  static PatternResult leftArrow(double targetAngle, otherAngle, String imgUrl) {
+    final widget = SizedBox(
       width: containerSize * 3,
       height: containerSize * 5,
       child: Row(
@@ -112,48 +155,51 @@ class Difficulty1 {
         ],
       ),
       );
+      return PatternResult(widget: widget, patternName: 'smallLeft');
   }
 }
 
 class Difficulty3 {
-  static SizedBox horPattern(double targetAngle, otherAngle, String imgUrl) {
-    return SizedBox(
+  static PatternResult horPattern(double targetAngle, otherAngle, String imgUrl) {
+   final widget = SizedBox(
       width: containerSize * 5,
       height: containerSize * 3,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Difficulty1.horPattern(otherAngle, otherAngle, imgUrl),
-          Difficulty1.horPattern(targetAngle, otherAngle, imgUrl),
-          Difficulty1.horPattern(otherAngle, otherAngle, imgUrl),
+          Difficulty1.horPattern(otherAngle, otherAngle, imgUrl).widget ,
+          Difficulty1.horPattern(targetAngle, otherAngle, imgUrl).widget,
+          Difficulty1.horPattern(otherAngle, otherAngle, imgUrl).widget,
         ],
       ),
     );
+    return PatternResult(widget: widget, patternName: 'bigHorizontal');
   }
 
-  static SizedBox verPattern(double targetAngle, otherAngle, String imgUrl) {
-    return SizedBox(
+  static PatternResult verPattern(double targetAngle, otherAngle, String imgUrl) {
+    final widget = SizedBox(
       width: containerSize * 3,
       height: containerSize * 5,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Difficulty1.verPattern(otherAngle, otherAngle, imgUrl),
-          Difficulty1.verPattern(targetAngle, otherAngle, imgUrl),
-          Difficulty1.verPattern(otherAngle, otherAngle, imgUrl),
+          Difficulty1.verPattern(otherAngle, otherAngle, imgUrl).widget,
+          Difficulty1.verPattern(targetAngle, otherAngle, imgUrl).widget,
+          Difficulty1.verPattern(otherAngle, otherAngle, imgUrl).widget,
         ],
       ),
     );
+    return PatternResult(widget: widget, patternName: 'bigVertical');
   }
 
-  static SizedBox upArrow(
+  static PatternResult upArrow(
     double targetAngle,
     double otherAngle,
     String imgUrl,
   ) {
-    return SizedBox(
+    final widget = SizedBox(
       width: containerSize * 5,
       height: containerSize * 3,
       child: Column(
@@ -164,14 +210,15 @@ class Difficulty3 {
         ],
       ),
     );
+    return PatternResult(widget: widget, patternName: 'bigUp');
   }
 
-  static SizedBox downArrow(
+  static PatternResult downArrow(
     double targetAngle,
     double otherAngle,
     String imgUrl,
   ) {
-    return SizedBox(
+    final widget = SizedBox(
       width: containerSize * 5,
       height: containerSize * 3,
       child: Column(
@@ -182,14 +229,15 @@ class Difficulty3 {
         ],
       ),
     );
+    return PatternResult(widget: widget, patternName: 'bigDown');
   }
 
-  static SizedBox rightArrow(
+  static PatternResult rightArrow(
     double targetAngle,
     double otherAngle,
     String imgUrl,
   ) {
-    return SizedBox(
+    final widget = SizedBox(
       width: containerSize * 3,
       height: containerSize * 5,
       child: Row(
@@ -201,14 +249,15 @@ class Difficulty3 {
         ],
       ),
     );
+    return PatternResult(widget: widget, patternName: 'bigRight');
   }
 
-  static SizedBox leftArrow(
+  static PatternResult leftArrow(
     double targetAngle,
     double otherAngle,
     String imgUrl,
   ) {
-    return SizedBox(
+    final widget = SizedBox(
       width: containerSize * 3,
       height: containerSize * 5,
       child: Row(
@@ -219,5 +268,6 @@ class Difficulty3 {
         ],
       ),
     );
+    return PatternResult(widget: widget, patternName: 'bigLeft');
   }
 }

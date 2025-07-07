@@ -27,10 +27,11 @@ class _InfoScreenState extends State<InfoScreen> {
       ),
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12,horizontal: 18),
-              child: Text(widget.message, style: TextStyle(fontSize: 14),),
+              padding: const EdgeInsets.only(top: 5 ,left: 8),
+              child: Text(widget.message, style: TextStyle(fontSize: 18),),
             ),
             Expanded(child: SizedBox()),
             Container(

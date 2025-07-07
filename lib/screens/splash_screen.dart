@@ -1,5 +1,5 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
-import 'package:cognivolve/screens/auth_screen.dart';
+import 'package:cognivolve/screens/auth_gate.dart';
 import 'package:cognivolve/utils/global_variables.dart';
 import 'package:cognivolve/utils/layout.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +34,7 @@ class SplashScreen extends StatelessWidget {
           ),
         ],
       ),
-      nextScreen: AuthScreen(),
+      nextScreen: AuthGate(),
       splashTransition: SplashTransition.fadeTransition,
      
     );

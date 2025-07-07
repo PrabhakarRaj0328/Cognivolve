@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognivolve/blocs/flankers_task_blocs/countdown_bloc.dart/countdown_bloc.dart';
 import 'package:cognivolve/blocs/flankers_task_blocs/game_bloc/game_bloc.dart';
 import 'package:cognivolve/blocs/flankers_task_blocs/phase_bloc/phase_bloc.dart';
@@ -11,10 +12,12 @@ import 'package:cognivolve/utils/global_variables.dart';
 import 'package:cognivolve/utils/layout.dart';
 import 'package:cognivolve/widgets/feedback.dart';
 import 'package:cognivolve/widgets/game_over.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:logger/web.dart';
 
 class FlankersTask extends StatefulWidget {
   static const String routeName = '/flankers_task';
@@ -32,6 +35,7 @@ class _FlankersTaskState extends State<FlankersTask>
   late List<Offset> currentDirection;
   late Map<String, String> currentImagePair;
   final List<int> speed = [2, 3];
+  final logger = Logger();
 
   late List<Map<String, String>> gameSessionPairs;
   bool start = true;
@@ -47,6 +51,12 @@ class _FlankersTaskState extends State<FlankersTask>
     [Offset(1.2, -1.2), Offset(-1.2, 1.2)], // TR to BL
     [Offset(-1.2, 1.2), Offset(1.2, -1.2)], // BL to TR
   ];
+  List<TrialData> trialsData = [];
+  int currentTrialNumber = 0;
+  DateTime? trialStartTime;
+  String gameSessionId = '';
+  bool isDisposed = false;
+  DateTime? startTime;
 
   void setNewDirection() {
     final rand = Random();
@@ -54,9 +64,73 @@ class _FlankersTaskState extends State<FlankersTask>
     _controller.reset();
   }
 
+  void startNewTrial() {
+    currentTrialNumber++;
+    trialStartTime = DateTime.now();
+  }
+
+  void recordTrialData(
+    String userSwipe,
+    String targetDirection,
+    bool isCorrect,
+    String pattern,
+  ) {
+    if (trialStartTime != null) {
+      final reactionTime =
+          DateTime.now().difference(trialStartTime!).inMilliseconds;
+
+      final trial = TrialData(
+        trialNumber: currentTrialNumber,
+        targetDirection: targetDirection,
+        userSwipe: userSwipe,
+        isCorrect: isCorrect,
+        reactionTime: reactionTime,
+        imagePair: currentImagePair['imgUrl']!,
+        pattern: pattern,
+      );
+
+      trialsData.add(trial);
+    }
+  }
+
+  // Push data to Firebase
+  Future<void> pushDataToFirebase(int finalScore) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      final gameData = {
+        'gameType': 'flankers_task',
+        'sessionId': gameSessionId,
+        'finalScore': finalScore,
+        'totalTrials': trialsData.length,
+        'gameStartTime':
+            trialsData.isNotEmpty
+                ? startTime!.toIso8601String()
+                : DateTime.now().toIso8601String(),
+        'gameEndTime': DateTime.now().toIso8601String(),
+        'trials': trialsData.map((trial) => trial.toJson()).toList(),
+      };
+
+      // Push to user's game collection
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('games')
+          .doc(gameSessionId)
+          .set(gameData);
+
+      logger.i('Game data successfully pushed to Firebase');
+    } catch (e) {
+      logger.e('Error pushing data to Firebase: $e');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    // Generate unique session ID
+    gameSessionId = 'flankers_${DateTime.now().millisecondsSinceEpoch}';
     WidgetsBinding.instance.addPostFrameCallback((_) {
       for (var currentPath in images) {
         precacheImage(
@@ -79,17 +153,19 @@ class _FlankersTaskState extends State<FlankersTask>
   @override
   void dispose() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    _controller.dispose();
+    if (!isDisposed) {
+      _controller.dispose();
+    }
     super.dispose();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
     currentImagePair = images[0];
 
     final size = AppLayout.getSize(context);
+    const testWidth = 384;
+    final width = size.width;
 
     return MultiBlocProvider(
       providers: [
@@ -128,24 +204,33 @@ class _FlankersTaskState extends State<FlankersTask>
                     builder: (context, state) {
                       if (state is TimerInProgress) {
                         return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Color(0xFF16697a),
-                              ),
-                              child: IconButton(
-                                onPressed: () {
-                                  context.read<TimerBloc>().add(PauseTimer());
-                                  _controller.stop();
-                                },
-                                icon: Icon(
-                                  Icons.pause,
-                                  color: GlobalVariables.gameColor,
-                                ),
-                              ),
+                            BlocBuilder<CountdownBloc, CountdownState>(
+                              builder: (context, state) {
+                                return Opacity(
+                                  opacity: state is CountdownComplete ? 1 : 0,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFF16697a),
+                                    ),
+                                    child: IconButton(
+                                      onPressed: () {
+                                        context.read<TimerBloc>().add(
+                                          PauseTimer(),
+                                        );
+                                        _controller.stop();
+                                      },
+                                      icon: Icon(
+                                        Icons.pause,
+                                        color: GlobalVariables.gameColor,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-                            Gap(95),
+                            Gap((95 / testWidth) * width),
                             Row(
                               children: [
                                 Container(
@@ -231,6 +316,7 @@ class _FlankersTaskState extends State<FlankersTask>
                         );
                       } else if (state is TimerEnded) {
                         _controller.dispose();
+                        isDisposed = true;
                         context.read<GameBloc>().add(GameOverEvent());
                         return SizedBox.shrink();
                       }
@@ -262,6 +348,9 @@ class _FlankersTaskState extends State<FlankersTask>
                             ),
                           );
                         } else if (state is CountdownComplete) {
+                          if (start) {
+                            startTime = DateTime.now();
+                          }
                           int randSpeed = speed[Random().nextInt(speed.length)];
                           _controller.duration = Duration(seconds: randSpeed);
 
@@ -272,6 +361,15 @@ class _FlankersTaskState extends State<FlankersTask>
 
                           _controller.addStatusListener((status) {
                             if (status == AnimationStatus.completed) {
+                              final gameState = context.read<GameBloc>().state;
+                              if (gameState is GameInProgress) {
+                                recordTrialData(
+                                  'none',
+                                  gameState.targetDirection,
+                                  false,
+                                  gameState.patternName,
+                                );
+                              }
                               currentImagePair = GamePhaseManager.getRandomPair(
                                 images,
                               );
@@ -283,6 +381,7 @@ class _FlankersTaskState extends State<FlankersTask>
                                 UserSwiped('none', currentImagePair['imgUrl']!),
                               );
                               setNewDirection();
+                              startNewTrial();
                               _controller.forward(from: 0);
                             }
                           });
@@ -294,6 +393,7 @@ class _FlankersTaskState extends State<FlankersTask>
                           );
 
                           setNewDirection();
+                          startNewTrial();
                           _controller.forward();
 
                           start = false;
@@ -303,46 +403,64 @@ class _FlankersTaskState extends State<FlankersTask>
                                 return GestureDetector(
                                   onHorizontalDragEnd: (details) async {
                                     _controller.stop();
+
+                                    final dx =
+                                        details.velocity.pixelsPerSecond.dx;
+                                    String swipeDir = dx > 0 ? 'right' : 'left';
+                                    bool isCorrect =
+                                        state.targetDirection == swipeDir;
+
+                                    // Record trial data
+                                    recordTrialData(
+                                      swipeDir,
+                                      state.targetDirection,
+                                      isCorrect,
+                                      state.patternName,
+                                    );
                                     currentImagePair =
                                         GamePhaseManager.getRandomPair(images);
 
                                     context.read<PhaseBloc>().add(
                                       PhaseChange(currentImagePair),
                                     );
-                                    setNewDirection();
-                                    _controller.forward();
-                                    final dx =
-                                        details.velocity.pixelsPerSecond.dx;
-                                    String swipeDir = dx > 0 ? 'right' : 'left';
-                                    showSwipeFeedback(
-                                      context,
-                                      state.targetDirection == swipeDir,
-                                    );
+                                    showSwipeFeedback(context, isCorrect);
                                     context.read<GameBloc>().add(
                                       UserSwiped(
                                         swipeDir,
                                         currentImagePair['imgUrl']!,
                                       ),
                                     );
+                                    setNewDirection();
+                                    startNewTrial();
+                                    _controller.forward();
                                   },
                                   onVerticalDragEnd: (details) {
-                                    _controller.stop();
-                                    setNewDirection();
-                                    currentImagePair =
-                                        GamePhaseManager.getRandomPair(images);
-
-                                    context.read<PhaseBloc>().add(
-                                      PhaseChange(currentImagePair),
-                                    );
                                     _controller.forward();
                                     final dy =
                                         details.velocity.pixelsPerSecond.dy;
 
                                     String swipeDir = dy > 0 ? 'down' : 'up';
-                                    showSwipeFeedback(
-                                      context,
-                                      state.targetDirection == swipeDir,
+                                    bool isCorrect =
+                                        state.targetDirection == swipeDir;
+
+                                    // Record trial data
+                                    recordTrialData(
+                                      swipeDir,
+                                      state.targetDirection,
+                                      isCorrect,
+                                      state.patternName,
                                     );
+
+                                    setNewDirection();
+                                    currentImagePair =
+                                        GamePhaseManager.getRandomPair(images);
+                                    context.read<PhaseBloc>().add(
+                                      PhaseChange(currentImagePair),
+                                    );
+                                    startNewTrial(); // Start new trial
+                                    _controller.forward();
+                                    showSwipeFeedback(context, isCorrect);
+
                                     context.read<GameBloc>().add(
                                       UserSwiped(
                                         swipeDir,
@@ -415,7 +533,12 @@ class _FlankersTaskState extends State<FlankersTask>
                                   ),
                                 );
                               } else if (state is GameOver) {
-                                return showGameOver(state.finalScore, context,FlankersTask.routeName);
+                                pushDataToFirebase(state.finalScore);
+                                return showGameOver(
+                                  state.finalScore,
+                                  context,
+                                  FlankersTask.routeName,
+                                );
                               }
                               return SizedBox.shrink();
                             },

@@ -1,11 +1,14 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cognivolve/services/auth.dart';
 import 'package:cognivolve/utils/global_variables.dart';
 import 'package:cognivolve/utils/layout.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:logger/web.dart';
 
 class AuthScreen extends StatefulWidget {
-  static const routName = '/auth';
+  static const routeName = '/auth';
   const AuthScreen({super.key});
 
   @override
@@ -14,7 +17,15 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final AuthService _googleAuthService = AuthService();
-
+  final logger = Logger(
+    printer: PrettyPrinter(
+      methodCount: 2,
+      errorMethodCount: 8,
+      lineLength: 120,
+      colors: true,
+      printEmojis: true,
+    ),
+  );
   @override
   Widget build(BuildContext context) {
     double width = AppLayout.getSize(context).width;
@@ -36,11 +47,10 @@ class _AuthScreenState extends State<AuthScreen> {
               onTap: () async {
                 final user = await _googleAuthService.signInWithGoogle();
                 if (user != null) {
-                  print("Signed in as: ${user.displayName}, ${user.email}");
-                  // For example, navigate to home screen:
-                  // Navigator.pushReplacementNamed(context, '/home');
+                  logger.i('Signed in');
+                  Navigator.pushNamed(context, '/landingpage');
                 } else {
-                  print("Google sign-in failed or was canceled.");
+                  logger.e("Google sign-in failed or was canceled.");
                 }
               },
               child: Align(
@@ -57,8 +67,8 @@ class _AuthScreenState extends State<AuthScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        height: 30,
-                        width: 30,
+                        height: 25,
+                        width: 25,
                         decoration: BoxDecoration(
                           image: DecorationImage(
                             image: AssetImage('assets/images/google.png'),
@@ -70,7 +80,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       Text(
                         'Continue with Google',
                         style: GlobalVariables.headLineStyle1.copyWith(
-                          fontSize: 20,
+                          fontSize: 18,
                         ),
                       ),
                     ],

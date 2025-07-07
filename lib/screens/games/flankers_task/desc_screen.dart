@@ -13,6 +13,6 @@ class FlankersTaskDesc extends StatefulWidget {
 class _FlankersTaskDescState extends State<FlankersTaskDesc> {
   @override
   Widget build(BuildContext context) {
-    return InfoScreen(routeName: FlankersTask.routeName,message: "",);
+    return InfoScreen(routeName: FlankersTask.routeName,message: "Swipe in the direction of the center bird",);
   }
 }

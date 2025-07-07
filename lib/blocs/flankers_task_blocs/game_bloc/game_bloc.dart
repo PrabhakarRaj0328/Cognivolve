@@ -9,15 +9,22 @@ part 'game_state.dart';
 class GameBloc extends Bloc<GameEvent, GameState> {
   final Random random = Random();
 
-  GameBloc() : super(GameInProgress(SizedBox.shrink(), 'null',0)) {
+  GameBloc() : super(GameInProgress(SizedBox.shrink(), 'null', 0, '')) {
     on<StartGame>((event, emit) {
-      final PatternResult pattern = FlankersTaskServices.randomPattern(
+      final RandomPattern pattern = FlankersTaskServices.randomPattern(
         event.imgUrl,
       );
-      emit(GameInProgress(pattern.pattern, pattern.direction, 0));
+      emit(
+        GameInProgress(
+          pattern.pattern,
+          pattern.direction,
+          0,
+          pattern.patternName,
+        ),
+      );
     });
     on<UserSwiped>((event, emit) {
-      final PatternResult newPattern = FlankersTaskServices.randomPattern(
+      final RandomPattern newPattern = FlankersTaskServices.randomPattern(
         event.imgUrl,
       );
 
@@ -30,7 +37,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
               newPattern.pattern,
               newPattern.direction,
               current.score,
-
+              newPattern.patternName,
             ),
           );
         } else if (event.direction == current.targetDirection) {
@@ -38,7 +45,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
             GameInProgress(
               newPattern.pattern,
               newPattern.direction,
-              current.score + 100),
+              current.score + 100,
+              newPattern.patternName,
+            ),
           );
         } else {
           emit(
@@ -46,6 +55,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
               newPattern.pattern,
               newPattern.direction,
               current.score,
+              newPattern.patternName,
             ),
           );
         }

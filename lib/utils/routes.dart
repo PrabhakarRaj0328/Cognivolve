@@ -1,3 +1,4 @@
+import 'package:cognivolve/screens/auth_screen.dart';
 import 'package:cognivolve/screens/error_screen.dart';
 import 'package:cognivolve/screens/games/corsi_span_task/corsi_desc.dart';
 import 'package:cognivolve/screens/games/corsi_span_task/game_screen.dart';
@@ -24,6 +25,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (_) => const CorsiDesc());
     case CorsiSpanTask.routeName:
       return MaterialPageRoute(builder: (_) => const CorsiSpanTask());
+    case AuthScreen.routeName:
+      return MaterialPageRoute(builder: (_) => const AuthScreen());
     default:
       return MaterialPageRoute(builder: (_) => const ErrorScreen());
   }
