@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognivolve/blocs/stroops_task_blocs/countdown_bloc/countdown_bloc.dart';
 import 'package:cognivolve/blocs/stroops_task_blocs/game_bloc/game_bloc.dart';
 import 'package:cognivolve/blocs/stroops_task_blocs/timer_bloc/timer_bloc.dart';
@@ -8,10 +9,12 @@ import 'package:cognivolve/screens/games/stroops_task/widgets.dart';
 import 'package:cognivolve/utils/global_variables.dart';
 import 'package:cognivolve/utils/layout.dart';
 import 'package:cognivolve/widgets/game_over.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:logger/web.dart';
 
 class StroopsTask extends StatefulWidget {
   static const String routeName = '/stroops_task';
@@ -22,9 +25,15 @@ class StroopsTask extends StatefulWidget {
 }
 
 class _StroopsTaskState extends State<StroopsTask> {
+  List<StroopTrialData> trialsData = [];
+  int currentTrialNumber = 0;
+  DateTime? trialStartTime;
+  String gameSessionId = '';
+  final logger = Logger();
   @override
   void initState() {
     super.initState();
+    gameSessionId = 'stroop_${DateTime.now().millisecondsSinceEpoch}';
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   }
 
@@ -32,6 +41,82 @@ class _StroopsTaskState extends State<StroopsTask> {
   void dispose() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
+  }
+
+  // Initialize new trial
+  void startNewTrial() {
+    currentTrialNumber++;
+    trialStartTime = DateTime.now();
+  }
+
+  // Record trial data
+  void recordTrialData(
+    String meaningWord,
+    String meaningColor,
+    String textWord,
+    String textColor,
+    bool correctAnswer,
+    bool userResponse,
+    bool isCorrect,
+  ) {
+    if (trialStartTime != null) {
+      final reactionTime =
+          DateTime.now().difference(trialStartTime!).inMilliseconds;
+
+      final trial = StroopTrialData(
+        trialNumber: currentTrialNumber,
+        meaningWord: meaningWord,
+        meaningColor: meaningColor,
+        textWord: textWord,
+        textColor: textColor,
+        correctAnswer: correctAnswer,
+        userResponse: userResponse,
+        isCorrect: isCorrect,
+        reactionTime: reactionTime,
+        timestamp: DateTime.now(),
+      );
+
+      trialsData.add(trial);
+      logger.i(
+        'Trial $currentTrialNumber recorded: ${isCorrect ? "Correct" : "Incorrect"}',
+      );
+    }
+  }
+
+  // Push data to Firebase
+  Future<void> pushDataToFirebase(int finalScore) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        logger.e('No authenticated user found');
+        return;
+      }
+
+      final gameData = {
+        'gameType': 'stroop_task',
+        'sessionId': gameSessionId,
+        'finalScore': finalScore,
+        'totalTrials': trialsData.length,
+        'gameStartTime':
+            trialsData.isNotEmpty
+                ? trialsData.first.timestamp.toIso8601String()
+                : DateTime.now().toIso8601String(),
+        'gameEndTime': DateTime.now().toIso8601String(),
+        'trials': trialsData.map((trial) => trial.toJson()).toList(),
+      };
+
+      // Push to user's game collection
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('games')
+          .doc(gameSessionId)
+          .set(gameData);
+
+      logger.i('Stroop task data successfully pushed to Firebase');
+    } catch (e) {
+      logger.e('Error pushing data to Firebase: $e');
+    }
   }
 
   @override
@@ -309,6 +394,7 @@ class _StroopsTaskState extends State<StroopsTask> {
                                   ),
                                 );
                               } else if (state is GameOver) {
+                                pushDataToFirebase(state.score);
                                 return Expanded(
                                   child: showGameOver(
                                     state.score,
@@ -332,10 +418,20 @@ class _StroopsTaskState extends State<StroopsTask> {
                                 child: GestureDetector(
                                   onTap: () {
                                     final bool isCorrect = state.ans == false;
+                                    recordTrialData(
+                                      state.meaning,
+                                      state.meaningColor,
+                                      state.text,
+                                      state.textColor,
+                                      state.ans,
+                                      false,
+                                      isCorrect,
+                                    );
                                     showSwipeFeedback(context, isCorrect);
                                     context.read<GameBloc>().add(
                                       UserResponse(isCorrect),
                                     );
+                                    startNewTrial();
                                   },
                                   child: Container(
                                     height: size.width * 0.2,
@@ -359,10 +455,20 @@ class _StroopsTaskState extends State<StroopsTask> {
                                 child: GestureDetector(
                                   onTap: () {
                                     final bool isCorrect = state.ans == true;
+                                    recordTrialData(
+                                      state.meaning,
+                                      state.meaningColor,
+                                      state.text,
+                                      state.textColor,
+                                      state.ans,
+                                      true,
+                                      isCorrect,
+                                    );
                                     showSwipeFeedback(context, isCorrect);
                                     context.read<GameBloc>().add(
                                       UserResponse(isCorrect),
                                     );
+                                    startNewTrial();
                                   },
                                   child: Container(
                                     height: size.width * 0.2,
