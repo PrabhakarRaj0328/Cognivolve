@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:cognivolve/screens/games/corsi_span_task/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 part 'game_event.dart';
 part 'game_state.dart';
 
@@ -27,7 +26,6 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     });
 
     on<BlockTapped>((event, emit) async {
-      
       var currState = state as GameInProgress;
       if (!currState.acceptingInput) return;
 
@@ -52,8 +50,8 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
         emit(
           currState.copyWith(
+            isCorrect: isCorrect?1:0,
             acceptingInput: false,
-            message: isCorrect ? "correct" : "wrong",
             score: isCorrect ? currState.score + 100 : currState.score,
             incorrect:
                 isCorrect ? currState.incorrect : currState.incorrect + 1,
@@ -63,15 +61,21 @@ class GameBloc extends Bloc<GameEvent, GameState> {
                     : currState.currentLength,
           ),
         );
+        await Future.delayed(Duration(milliseconds: 300));
         currState = state as GameInProgress;
-        if(currState.currentLength == 10 || currState.incorrect == 3){
+        emit(
+          currState.copyWith(
+            isCorrect: -1,
+          ),
+        );
+        currState = state as GameInProgress;
+        if (currState.currentLength == 10 || currState.incorrect == 3) {
           await Future.delayed(Duration(milliseconds: 500));
           add(EndGame());
-        }
-        else {
+        } else {
           Future.delayed(Duration(seconds: 1), () {
-          add((NextRound()));
-        });
+            add((NextRound()));
+          });
         }
       }
     });
@@ -85,37 +89,32 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         emit(currState.copyWith(highlightedIndex: -1));
         await Future.delayed(Duration(milliseconds: 150));
       }
-      emit(
-        currState.copyWith(
-          acceptingInput: true,
-        ),
-      );
+      emit(currState.copyWith(acceptingInput: true, showGo: true));
+      await Future.delayed(Duration(milliseconds: 300));
+      emit(currState.copyWith(acceptingInput: true,showGo: false));
+
     });
 
     on<NextRound>((event, emit) {
       final currState = state as GameInProgress;
-      
+
       List<int> currSequence = generateSequence(
         currState.currentLength,
         maxIndex,
       );
-      final bool isReversed = Random().nextBool();
-      final Color cueColor = isReversed ? Colors.red : Colors.yellow;
-
       emit(
         currState.copyWith(
           sequence: currSequence,
-          isReversed: isReversed,
+          isReversed: currState.isReversed,
           userInput: [],
           highlightedIndex: -1,
-          cueColor: cueColor,
-          message: "",
+          cueColor: currState.cueColor,
         ),
       );
       add(ShowNextSequence());
     });
 
-    on<EndGame>((event,emit){
+    on<EndGame>((event, emit) {
       final currState = state as GameInProgress;
       emit(GameOver(currState.score));
     });

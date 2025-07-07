@@ -7,15 +7,15 @@ final class GameInProgress extends GameState {
   final List<int> userInput;
   final bool acceptingInput;
   final bool isReversed;
+  final int isCorrect;
   final int? highlightedIndex;
   final Color cueColor;
   final int score;
-  final String message;
   final int currentLength;
   final int incorrect;
+  final bool showGo;
 
   GameInProgress( {
-    required this.message,
     required this.sequence,
     required this.userInput,
     required this.acceptingInput,
@@ -25,6 +25,8 @@ final class GameInProgress extends GameState {
     required this.score,
     required this.currentLength,
     required this.incorrect,
+    required this.showGo,
+    required this.isCorrect
   });
 
   factory GameInProgress.initial() {
@@ -36,9 +38,10 @@ final class GameInProgress extends GameState {
       highlightedIndex: -1,
       cueColor: const Color(0xFFFFFFFF),
       score: 0,
-      message: "",
       currentLength: 2,
       incorrect: 0,
+      showGo: false,
+      isCorrect: -1
     );
   }
 
@@ -47,12 +50,13 @@ final class GameInProgress extends GameState {
     List<int>? userInput,
     bool? acceptingInput,
     bool? isReversed,
+    int? isCorrect,
     int? highlightedIndex,
     Color? cueColor,
-    String? message,
     int? score,
     int? incorrect,
     int? currentLength,
+    bool? showGo,
   }) {
     return GameInProgress(
       sequence: sequence ?? this.sequence,
@@ -61,10 +65,11 @@ final class GameInProgress extends GameState {
       isReversed: isReversed ?? this.isReversed,
       highlightedIndex: highlightedIndex,
       cueColor: cueColor ?? this.cueColor,
-      message: message ?? this.message,
       score: score ?? this.score,
       incorrect: incorrect ?? this.incorrect,
       currentLength: currentLength ?? this.currentLength,
+      showGo: showGo ?? this.showGo,
+      isCorrect: isCorrect ?? this.isCorrect
     );
   }
 }

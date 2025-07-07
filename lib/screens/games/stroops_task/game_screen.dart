@@ -148,19 +148,25 @@ class _StroopsTaskState extends State<StroopsTask> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Color(0xFF353535),
-                                ),
-                                child: IconButton(
-                                  onPressed: () {
-                                    context.read<TimerBloc>().add(PauseTimer());
-                                  },
-                                  icon: Icon(
-                                    Icons.pause,
-                                    color: GlobalVariables.gameColor,
+                             BlocBuilder<CountdownBloc, CountdownState>(
+                              builder: (context, state) {
+                                return Opacity(
+                                  opacity: state is CountdownComplete ? 1 : 0,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFF353535),
+                                    ),
+                                    child: IconButton(
+                                      onPressed: () {
+                                        context.read<TimerBloc>().add(PauseTimer());
+                                      },
+                                      icon: Icon(
+                                        Icons.pause,
+                                        color: GlobalVariables.gameColor,
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                );}
                               ),
                               Padding(
                                 padding: const EdgeInsets.only(right: 8.0),
