@@ -74,6 +74,7 @@ flutter:
     - assets/images/stroops_task_images/
     - assets/images/corsi_span_task_images/
     - assets/images/
+    - assets/images/risk_task_images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

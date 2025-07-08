@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cognivolve/blocs/corsi_span_task/countdown_bloc/countdown_bloc.dart';
-import 'package:cognivolve/blocs/corsi_span_task/game_bloc/game_bloc.dart';
-import 'package:cognivolve/blocs/corsi_span_task/timer_bloc/timer_bloc.dart';
-import 'package:cognivolve/screens/games/corsi_span_task/widgets.dart';
+import 'package:cognivolve/blocs/risk_task_bloc/countdown_bloc/countdown_bloc.dart';
+import 'package:cognivolve/blocs/risk_task_bloc/game_bloc/game_bloc.dart';
+import 'package:cognivolve/screens/games/risk_task/widgets.dart';
 import 'package:cognivolve/utils/global_variables.dart';
 import 'package:cognivolve/utils/layout.dart';
 import 'package:cognivolve/widgets/game_over.dart';
@@ -14,28 +13,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:logger/web.dart';
 
-class CorsiSpanTask extends StatefulWidget {
-  static const String routeName = '/corsi_span_task';
-  const CorsiSpanTask({super.key});
+import '../../../blocs/risk_task_bloc/timer_bloc/timer_bloc.dart';
+
+class RiskGameScreen extends StatefulWidget {
+  static const routeName = '/risk_task';
+  const RiskGameScreen({super.key});
 
   @override
-  State<CorsiSpanTask> createState() => _CorsiSpanTaskState();
+  State<RiskGameScreen> createState() => _RiskGameScreenState();
 }
 
-class _CorsiSpanTaskState extends State<CorsiSpanTask> {
+class _RiskGameScreenState extends State<RiskGameScreen> {
   final Logger logger = Logger();
 
   // Data collection variables
-  List<CorsiTrialData> trialsData = [];
+  List<RiskTrialData> trialsData = [];
   int currentTrialNumber = 0;
   DateTime? trialStartTime;
   String gameSessionId = '';
-  bool? isReversed;
-
   @override
   void initState() {
     super.initState();
-    gameSessionId = 'corsi_${DateTime.now().millisecondsSinceEpoch}';
+    gameSessionId = 'risk_${DateTime.now().millisecondsSinceEpoch}';
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   }
 
@@ -45,7 +44,6 @@ class _CorsiSpanTaskState extends State<CorsiSpanTask> {
     super.dispose();
   }
 
-  // Initialize new trial
   void startNewTrial() {
     currentTrialNumber++;
     trialStartTime = DateTime.now();
@@ -53,27 +51,31 @@ class _CorsiSpanTaskState extends State<CorsiSpanTask> {
 
   // Record trial data
   void recordTrialData(
-    List<int> target,
-    List<int> userResponse,
+    List<int> digits,
+    int hiddenIndex,
+    int correctDigit,
+    int userResponse,
     bool isCorrect,
-    int sequenceLength,
   ) {
     if (trialStartTime != null) {
       final reactionTime =
           DateTime.now().difference(trialStartTime!).inMilliseconds;
 
-      final trial = CorsiTrialData(
+      final trial = RiskTrialData(
         trialNumber: currentTrialNumber,
-        target: target,
-        isReversed: isReversed!,
+        digits: digits,
+        hiddenIndex: hiddenIndex,
+        correctDigit: correctDigit,
         userResponse: userResponse,
         isCorrect: isCorrect,
         reactionTime: reactionTime,
-        sequenceLength: sequenceLength,
         timestamp: DateTime.now(),
       );
 
       trialsData.add(trial);
+      logger.i(
+        'Trial currentTrialNumber recorded: ${isCorrect ? "Correct" : "Incorrect"}',
+      );
     }
   }
 
@@ -87,7 +89,7 @@ class _CorsiSpanTaskState extends State<CorsiSpanTask> {
       }
 
       final gameData = {
-        'gameType': 'corsi_span_task',
+        'gameType': 'risk_task',
         'sessionId': gameSessionId,
         'finalScore': finalScore,
         'totalTrials': trialsData.length,
@@ -106,8 +108,7 @@ class _CorsiSpanTaskState extends State<CorsiSpanTask> {
           .collection('games')
           .doc(gameSessionId)
           .set(gameData);
-
-      logger.i('Corsi Span task data successfully pushed to Firebase');
+      logger.i('Risk task data successfully pushed to Firebase');
     } catch (e) {
       logger.e('Error pushing data to Firebase: $e');
     }
@@ -116,9 +117,6 @@ class _CorsiSpanTaskState extends State<CorsiSpanTask> {
   @override
   Widget build(BuildContext context) {
     final size = AppLayout.getSize(context);
-    double gridSize = size.width * 0.7;
-    int rows = 3;
-
     return Scaffold(
       backgroundColor: Colors.black,
       body: MultiBlocProvider(
@@ -127,24 +125,21 @@ class _CorsiSpanTaskState extends State<CorsiSpanTask> {
           BlocProvider(create: (_) => TimerBloc()),
           BlocProvider(create: (_) => GameBloc()),
         ],
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: size.height * 0.08),
-          child: Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(
-                  'assets/images/corsi_span_task_images/bg.png',
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: size.height * 0.08),
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/risk_task_images/bg.jpg'),
+                  fit: BoxFit.cover,
                 ),
-                fit: BoxFit.cover,
               ),
-            ),
-            child: Stack(
-              children: [
-                Column(
-                  children: [
-                    SizedBox(
-                      height: 80,
-                      child: BlocBuilder<TimerBloc, TimerState>(
+              child: Stack(
+                children: [
+                  Column(
+                    children: [
+                      BlocBuilder<TimerBloc, TimerState>(
                         builder: (context, state) {
                           if (state is TimerInProgress) {
                             return Row(
@@ -271,148 +266,137 @@ class _CorsiSpanTaskState extends State<CorsiSpanTask> {
                               ],
                             );
                           } else if (state is TimerEnded) {
-                            if (state.isOver) {
-                              context.read<GameBloc>().add(EndGame());
-                            }
+                            context.read<GameBloc>().add(EndGame());
                             return SizedBox.shrink();
                           }
                           return SizedBox.shrink();
                         },
                       ),
-                    ),
-
-                    BlocBuilder<CountdownBloc, CountdownState>(
-                      builder: (context, state) {
-                        if (state is CountdownInProgress) {
-                          return Expanded(
-                            child: Center(
-                              child: Container(
-                                height: 100,
-                                width: 100,
-                                decoration: BoxDecoration(
-                                  color: GlobalVariables.secondaryColor,
-                                  borderRadius: BorderRadius.circular(50),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '${state.secondsRemaining}',
-                                    style: TextStyle(
-                                      fontSize: 60,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
+                      BlocBuilder<CountdownBloc, CountdownState>(
+                        builder: (context, state) {
+                          if (state is CountdownInProgress) {
+                            return Expanded(
+                              child: Center(
+                                child: Container(
+                                  height: 100,
+                                  width: 100,
+                                  decoration: BoxDecoration(
+                                    color: GlobalVariables.secondaryColor,
+                                    borderRadius: BorderRadius.circular(50),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '${state.secondsRemaining}',
+                                      style: TextStyle(
+                                        fontSize: 60,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          );
-                        } else {
-                          context.read<TimerBloc>().add(TimerStart(90));
-                          context.read<GameBloc>().add(StartGame());
+                            );
+                          } else {
+                            context.read<TimerBloc>().add(TimerStart(35));
+                            context.read<GameBloc>().add(StartGame());
 
-                          startNewTrial();
-                          return BlocBuilder<GameBloc, GameState>(
-                            builder: (context, state) {
-                              if (state is GameInProgress) {
-                                isReversed = state.isReversed;
-                                if (state.isCorrect != -1) {
-                                  recordTrialData(
-                                    state.sequence,
-                                    state.userInput,
-                                    state.isCorrect == 1,
-                                    state.currentLength,
-                                  );
-                                  startNewTrial();
-                                }
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                        top: size.height * 0.08,
-                                      ),
-                                      child: SizedBox(
-                                        width: gridSize,
-                                        height: gridSize + 50,
-                                        child: buildGrid(
-                                          rows,
-                                          state.highlightedIndex ?? -1,
-                                          state.cueColor,
+                            startNewTrial();
+                            return BlocBuilder<GameBloc, GameState>(
+                              builder: (context, state) {
+                                if (state is GameInProgress) {
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      top: size.height * 0.1,
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        LotteryTicket(
+                                          numbers: state.digits,
+                                          hiddenIndex: state.hiddenIndex,
                                         ),
-                                      ),
-                                    ),
-                                    state.showGo
-                                        ? Container(
-                                          padding: EdgeInsets.all(16),
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: GlobalVariables.mainColor,
-                                          ),
+                                        ChoiceButtons(
+                                          digit1: 4,
+                                          digit2: 5,
+                                          onChoice: (int num) {
+                                            final bool isCorrect =
+                                                num == state.correctDigit;
 
-                                          child: Text(
-                                            'Go!',
-                                            style: TextStyle(
-                                              fontSize: 30,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        )
-                                        : SizedBox.shrink(),
-                                    Center(
-                                      child:
-                                          state.isCorrect != -1
-                                              ? Container(
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color:
-                                                      state.isCorrect == 1
-                                                          ? Color(0xFF38b000)
-                                                          : Color(0Xffef233c),
-                                                ),
-                                                child: Icon(
-                                                  state.isCorrect == 1
-                                                      ? Icons.check
-                                                      : Icons.cancel,
+                                            // Record trial data
+                                            recordTrialData(
+                                              state.digits,
+                                              state.hiddenIndex,
+                                              state.correctDigit,
+                                              num,
+                                              isCorrect,
+                                            );
+                                            context.read<GameBloc>().add(
+                                              UserResponse(isCorrect),
+                                            );
+                                            // Start new trial
+                                            startNewTrial();
+                                          },
+                                        ),
+                                        state.isCorrect != -1
+                                            ? Container(
+                                              padding: EdgeInsets.all(20),
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color:
+                                                    state.isCorrect == 1
+                                                        ? Color(0xFF38b000)
+                                                        : Color(0Xffef233c),
+                                              ),
+                                              child: Text(
+                                                state.isCorrect == 1
+                                                    ? '+100\$'
+                                                    : '0\$',
+                                                style: TextStyle(
+                                                  fontSize: 22,
                                                   color: Colors.white,
-                                                  size: 80,
                                                 ),
-                                              )
-                                              : SizedBox.shrink(),
+                                              ),
+                                            )
+                                            : SizedBox.shrink(),
+                                      ],
                                     ),
-                                  ],
-                                );
-                              } else if (state is GameOver) {
-                                pushDataToFirebase(state.finalScore);
-                                context.read<TimerBloc>().add(EndTimer());
-                                return SizedBox(
-                                  height: size.height / 2,
-                                  child: showGameOver(
-                                    state.finalScore,
-                                    context,
-                                    CorsiSpanTask.routeName,
-                                  ),
-                                );
-                              }
-                              return SizedBox.shrink();
-                            },
-                          );
-                        }
-                      },
-                    ),
-                  ],
-                ),
-                BlocBuilder<TimerBloc, TimerState>(
-                  builder: (context, state) {
-                    return PauseOverlay(
-                      routeName: CorsiSpanTask.routeName,
-                      isVisible: state is TimerPaused,
-                      onResume: () {
-                        context.read<TimerBloc>().add(ResumeTimer());
-                      },
-                    );
-                  },
-                ),
-              ],
+                                  );
+                                } else {
+                                  if (state is GameOver) {
+                                    pushDataToFirebase(state.score);
+                                    return SizedBox(
+                                      height: size.height / 2,
+                                      child: showGameOver(
+                                        state.score,
+                                        context,
+                                        RiskGameScreen.routeName,
+                                      ),
+                                    );
+                                  }
+                                  return SizedBox.shrink();
+                                }
+                              },
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  BlocBuilder<TimerBloc, TimerState>(
+                    builder: (context, state) {
+                      return PauseOverlay(
+                        routeName: RiskGameScreen.routeName,
+                        isVisible: state is TimerPaused,
+                        onResume: () {
+                          context.read<TimerBloc>().add(ResumeTimer());
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -1,13 +1,12 @@
 import 'package:cognivolve/screens/games/corsi_span_task/corsi_desc.dart';
 import 'package:cognivolve/screens/games/flankers_task/desc_screen.dart';
+import 'package:cognivolve/screens/games/risk_task/desc_screen.dart';
 import 'package:cognivolve/screens/games/stroops_task/desc_screen.dart';
-import 'package:cognivolve/services/auth_provider.dart';
 import 'package:cognivolve/utils/global_variables.dart';
 import 'package:cognivolve/utils/layout.dart';
 import 'package:cognivolve/widgets/game_card.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,8 +18,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<AuthProvider>(context).user;
-    final isLoggedIn = Provider.of<AuthProvider>(context).isLoggedIn;
 
     Size size = AppLayout.getSize(context);
     return SafeArea(
@@ -53,6 +50,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       GameCard(
                         routeName: CorsiDesc.routeName,
                         gameName: 'Corsi\'s Task',
+                      ),
+                      Gap(15),
+                      GameCard(
+                        routeName: RiskDescScreen.routeName,
+                        gameName: 'Lottery Task',
                       ),
                     ],
                   ),

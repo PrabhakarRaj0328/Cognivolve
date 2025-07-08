@@ -6,7 +6,7 @@ class GlobalVariables {
   static Color secondaryColor = const Color(0xFF0077b6);
   static Color iconColor = const Color(0xFF219ebc);
   static Color gameColor = const Color(0xFF90e0ef);
-  static Color textColor = const Color(0xFF023047);
+  static Color textColor = Colors.black;
   static Color brownColor = const Color(0xff5e3023);  
   static Color mainColor = const Color(0Xff34a0a4);
 
