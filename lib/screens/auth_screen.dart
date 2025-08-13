@@ -31,7 +31,7 @@ class _AuthScreenState extends State<AuthScreen> {
     double width = AppLayout.getSize(context).width;
     double height = AppLayout.getSize(context).height;
     return Scaffold(
-      backgroundColor: GlobalVariables.bgColor,
+      backgroundColor: Color(0xffedf6f9),
       body: SizedBox.expand(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -48,7 +48,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 final user = await _googleAuthService.signInWithGoogle();
                 if (user != null) {
                   logger.i('Signed in');
-                  Navigator.pushNamed(context, '/landingpage');
+                  Navigator.pushReplacementNamed(context, '/landingpage');
                 } else {
                   logger.e("Google sign-in failed or was canceled.");
                 }

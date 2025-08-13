@@ -15,6 +15,7 @@ class SplashScreen extends StatelessWidget {
     return AnimatedSplashScreen(
       duration: 3000,
       splashIconSize: height,
+      backgroundColor: Color(0xfff7ede2),
       splash: Column(
         children: [
           Gap(height*0.2),

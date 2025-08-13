@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.light(primary: GlobalVariables.primaryColor),
+          fontFamily: 'monospace',
         ),
         onGenerateRoute: (settings) => generateRoute(settings),
         home: SplashScreen(),

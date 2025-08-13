@@ -16,7 +16,7 @@ class _CorsiDescState extends State<CorsiDesc> {
     return InfoScreen(
       routeName: CorsiSpanTask.routeName,
       message:
-          "If the blocks light up in yellow, repeat the sequence in the same order. If they light up in red, repeat the sequence in reverse order.\n Caution: After 3 wrong attempts, you will lose!",
+          "If the blocks light up in yellow, repeat the sequence in the same order. If they light up in red, repeat the sequence in reverse order.\nCaution: After 3 wrong attempts, you will lose!",
     );
   }
 }
