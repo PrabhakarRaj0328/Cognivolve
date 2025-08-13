@@ -31,7 +31,7 @@ class _InfoScreenState extends State<InfoScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.only(top: 5 ,left: 8),
-              child: Text(widget.message, style: TextStyle(fontSize: 18),),
+              child: Text(widget.message, style: TextStyle(fontSize: 16),),
             ),
             Expanded(child: SizedBox()),
             Container(
@@ -48,15 +48,15 @@ class _InfoScreenState extends State<InfoScreen> {
                   alignment: Alignment.center,
                   child: Container(
                     width: 150,
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 40),
                     decoration: BoxDecoration(
                       color: GlobalVariables.primaryColor,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      'Start',
+                      ' Start',
                       style: GlobalVariables.headLineStyle1.copyWith(
-                        fontSize: 20,
+                        fontSize: 16,
                         color: Colors.white,
                       ),
                     ),

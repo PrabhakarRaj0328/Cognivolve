@@ -5,7 +5,7 @@ import 'package:logger/web.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final logger = Logger();
 
@@ -27,14 +27,44 @@ class AuthService {
       final UserCredential userCredential = await _auth.signInWithCredential(
         credential,
       );
-      // Create user document immediately after successful sign-in
+
       if (userCredential.user != null) {
-        await createUserDocument(userCredential.user!);
+        bool isNew = await isNewUser(userCredential.user!.uid);
+        if (isNew) {
+          return userCredential.user;
+        } else {
+          return userCredential.user;
+        }
       }
-      return userCredential.user;
+      return null;
     } catch (e) {
       logger.e("Google Sign-In Error: $e");
       return null;
+    }
+  }
+
+  Future<bool> isNewUser(String uid) async {
+    final doc = await _firestore.collection('users').doc(uid).get();
+    return !doc.exists;
+  }
+
+  Future<void> saveUserProfile({
+    required String uid,
+    required String email,
+    required String displayName,
+    required Map<String, dynamic> extraData,
+  }) async {
+    try {
+      await _firestore.collection('users').doc(uid).set({
+        'uid': uid,
+        'email': email,
+        'displayName': displayName,
+        'createdAt': FieldValue.serverTimestamp(),
+        ...extraData,
+      });
+      logger.i('User profile saved successfully');
+    } catch (e) {
+      logger.e('Error saving user profile: $e');
     }
   }
 
@@ -42,7 +72,6 @@ class AuthService {
     try {
       final userDoc = _firestore.collection('users').doc(user.uid);
 
-      // Check if document already exists
       final docSnapshot = await userDoc.get();
 
       if (!docSnapshot.exists) {

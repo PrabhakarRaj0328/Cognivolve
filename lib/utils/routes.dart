@@ -1,4 +1,5 @@
 import 'package:cognivolve/screens/auth_screen.dart';
+import 'package:cognivolve/screens/edit_screen.dart';
 import 'package:cognivolve/screens/error_screen.dart';
 import 'package:cognivolve/screens/games/corsi_span_task/corsi_desc.dart';
 import 'package:cognivolve/screens/games/corsi_span_task/game_screen.dart';
@@ -33,6 +34,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (_) => const RiskDescScreen());
     case RiskGameScreen.routeName:
       return MaterialPageRoute(builder: (_) => const RiskGameScreen());
+    case EditProfilePage.routeName:
+      return MaterialPageRoute(builder: (_) => const EditProfilePage());
     default:
       return MaterialPageRoute(builder: (_) => const ErrorScreen());
   }

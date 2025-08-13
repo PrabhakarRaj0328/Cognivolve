@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:cognivolve/screens/info_form.dart';
+import 'package:cognivolve/screens/loader.dart';
 import 'package:cognivolve/services/auth.dart';
 import 'package:cognivolve/utils/global_variables.dart';
 import 'package:cognivolve/utils/layout.dart';
@@ -16,7 +18,7 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  final AuthService _googleAuthService = AuthService();
+  final AuthService authService = AuthService();
   final logger = Logger(
     printer: PrettyPrinter(
       methodCount: 2,
@@ -26,38 +28,66 @@ class _AuthScreenState extends State<AuthScreen> {
       printEmojis: true,
     ),
   );
+
+  Future<void> _handleGoogleSignIn() async {
+    // Show loader
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        barrierDismissible: false,
+        builder: (_) => const SignInLoader(),
+      ),
+    );
+
+    final user = await authService.signInWithGoogle();
+
+    // Close loader
+    Navigator.pop(context);
+
+    if (user != null) {
+      bool isNew = await authService.isNewUser(user.uid);
+      if (isNew) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => UserInfoForm(
+              uid: user.uid,
+              email: user.email!,
+              displayName: user.displayName ?? '',
+            ),
+          ),
+        );
+      } else {
+        Navigator.pushReplacementNamed(context, '/landingpage');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double width = AppLayout.getSize(context).width;
     double height = AppLayout.getSize(context).height;
     return Scaffold(
-      backgroundColor: Color(0xffedf6f9),
+      backgroundColor: const Color(0xffedf6f9),
       body: SizedBox.expand(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               'Welcome Back!',
-              style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
             ),
-            Text('Sign in to train your brain', style: TextStyle(fontSize: 18)),
+            const Text('Sign in to train your brain', style: TextStyle(fontSize: 16)),
             Gap(height * 0.02),
             GestureDetector(
-              onTap: () async {
-                final user = await _googleAuthService.signInWithGoogle();
-                if (user != null) {
-                  logger.i('Signed in');
-                  Navigator.pushReplacementNamed(context, '/landingpage');
-                } else {
-                  logger.e("Google sign-in failed or was canceled.");
-                }
-              },
+              onTap: _handleGoogleSignIn,
               child: Align(
                 alignment: Alignment.center,
                 child: Container(
                   width: width * 0.65,
-                  padding: EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
                     border: Border.all(width: 0.5),
                     color: Colors.white,
@@ -69,18 +99,18 @@ class _AuthScreenState extends State<AuthScreen> {
                       Container(
                         height: 25,
                         width: 25,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           image: DecorationImage(
                             image: AssetImage('assets/images/google.png'),
                             fit: BoxFit.cover,
                           ),
                         ),
                       ),
-                      Gap(10),
+                      const Gap(10),
                       Text(
                         'Continue with Google',
                         style: GlobalVariables.headLineStyle1.copyWith(
-                          fontSize: 18,
+                          fontSize: 15,
                         ),
                       ),
                     ],

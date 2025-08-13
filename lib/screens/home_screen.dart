@@ -33,6 +33,8 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text('Games', style: GlobalVariables.headLineStyle1),
                 Gap(size.height * 0.02),
+                Text('Attention', style: GlobalVariables.headLineStyle3),
+                Gap(size.height * 0.01),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -40,21 +42,41 @@ class _HomeScreenState extends State<HomeScreen> {
                       GameCard(
                         routeName: FlankersTaskDesc.routeName,
                         gameName: 'Flanker\'s Task',
+                        imgUrl: 'flanker_icon.png',
                       ),
                       Gap(15),
                       GameCard(
                         routeName: StroopDesc.routeName,
                         gameName: 'Stroop\'s Task',
+                        imgUrl: 'stroop_icon.png',
                       ),
-                      Gap(15),
-                      GameCard(
-                        routeName: CorsiDesc.routeName,
-                        gameName: 'Corsi\'s Task',
-                      ),
-                      Gap(15),
+                    ],
+                  ),
+                ),Gap(size.height * 0.01),
+                Text('Decision Making', style: GlobalVariables.headLineStyle3),
+                Gap(size.height * 0.01),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
                       GameCard(
                         routeName: RiskDescScreen.routeName,
                         gameName: 'Lottery Task',
+                        imgUrl: 'lottery_icon.png',
+                      ),
+                    ],
+                  ),
+                ),Gap(size.height * 0.01),
+                Text('Memory', style: GlobalVariables.headLineStyle3),
+                Gap(size.height * 0.01),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      GameCard(
+                        routeName: CorsiDesc.routeName,
+                        gameName: 'Corsi\'s Task',
+                        imgUrl: 'corsi_icon.png',
                       ),
                     ],
                   ),

@@ -20,7 +20,7 @@ Widget showGameOver(int text,BuildContext context,String routeName) {
           children: [
             Text(
               'Nice going! You earned \n$text points',
-              style: GlobalVariables.headLineStyle1.copyWith(fontSize: 22),
+              style: GlobalVariables.headLineStyle1.copyWith(fontSize: 19),
               textAlign: TextAlign.center,
             ),
             Gap(10),

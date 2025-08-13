@@ -83,7 +83,7 @@ class _PauseOverlayState extends State<PauseOverlay>
                       Text(
                         "Paused",
                         style: TextStyle(
-                          fontSize: 24,
+                          fontSize: 21,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
